@@ -1,6 +1,21 @@
 declare global {
+  const AssertionError: typeof import('../../server/utils/contest')['AssertionError']
+  const Contest: typeof import('../../server/utils/contest')['Contest']
+  const FIFORunFeedingStrategy: typeof import('../../server/utils/contest')['FIFORunFeedingStrategy']
+  const IllegalArgumentError: typeof import('../../server/utils/contest')['IllegalArgumentError']
+  const Problem: typeof import('../../server/utils/contest')['Problem']
+  const ProblemSummary: typeof import('../../server/utils/contest')['ProblemSummary']
+  const Run: typeof import('../../server/utils/contest')['Run']
+  const RunFeeder: typeof import('../../server/utils/contest')['RunFeeder']
+  const Team: typeof import('../../server/utils/contest')['Team']
+  const TeamProblemStatus: typeof import('../../server/utils/contest')['TeamProblemStatus']
+  const TeamStatus: typeof import('../../server/utils/contest')['TeamStatus']
   const __buildAssetsURL: typeof import('../../node_modules/nuxt/dist/core/runtime/nitro/utils/paths')['buildAssetsURL']
   const __publicAssetsURL: typeof import('../../node_modules/nuxt/dist/core/runtime/nitro/utils/paths')['publicAssetsURL']
+  const adaptEventFeed: typeof import('../../server/utils/domjudge-adapter')['adaptEventFeed']
+  const adaptInitialJudgements: typeof import('../../server/utils/domjudge-adapter')['adaptInitialJudgements']
+  const adaptProblems: typeof import('../../server/utils/domjudge-adapter')['adaptProblems']
+  const adaptTeams: typeof import('../../server/utils/domjudge-adapter')['adaptTeams']
   const appendCorsHeaders: typeof import('../../node_modules/h3')['appendCorsHeaders']
   const appendCorsPreflightHeaders: typeof import('../../node_modules/h3')['appendCorsPreflightHeaders']
   const appendHeader: typeof import('../../node_modules/h3')['appendHeader']
@@ -125,6 +140,12 @@ declare global {
   const useStorage: typeof import('../../node_modules/nitropack/dist/runtime/internal/storage')['useStorage']
   const writeEarlyHints: typeof import('../../node_modules/h3')['writeEarlyHints']
 }
+// for type re-export
+declare global {
+  // @ts-ignore
+  export type { AssertionError, IllegalArgumentError, Problem, Team, TeamProblemStatus, TeamStatus, Run, Contest, ProblemSummary, FIFORunFeedingStrategy, RunFeeder } from '../../server/utils/contest'
+  import('../../server/utils/contest')
+}
 export { useNitroApp } from 'nitropack/runtime/internal/app';
 export { useRuntimeConfig, useAppConfig } from 'nitropack/runtime/internal/config';
 export { defineNitroPlugin, nitroPlugin } from 'nitropack/runtime/internal/plugin';
@@ -139,3 +160,5 @@ export { defineNitroErrorHandler } from 'nitropack/runtime/internal/error/utils'
 export { appendCorsHeaders, appendCorsPreflightHeaders, appendHeader, appendHeaders, appendResponseHeader, appendResponseHeaders, assertMethod, callNodeListener, clearResponseHeaders, clearSession, createApp, createAppEventHandler, createError, createEvent, createEventStream, createRouter, defaultContentType, defineEventHandler, defineLazyEventHandler, defineNodeListener, defineNodeMiddleware, defineRequestMiddleware, defineResponseMiddleware, defineWebSocket, defineWebSocketHandler, deleteCookie, dynamicEventHandler, eventHandler, fetchWithEvent, fromNodeMiddleware, fromPlainHandler, fromWebHandler, getCookie, getHeader, getHeaders, getMethod, getProxyRequestHeaders, getQuery, getRequestFingerprint, getRequestHeader, getRequestHeaders, getRequestHost, getRequestIP, getRequestPath, getRequestProtocol, getRequestURL, getRequestWebStream, getResponseHeader, getResponseHeaders, getResponseStatus, getResponseStatusText, getRouterParam, getRouterParams, getSession, getValidatedQuery, getValidatedRouterParams, handleCacheHeaders, handleCors, isCorsOriginAllowed, isError, isEvent, isEventHandler, isMethod, isPreflightRequest, isStream, isWebResponse, lazyEventHandler, parseCookies, promisifyNodeListener, proxyRequest, readBody, readFormData, readMultipartFormData, readRawBody, readValidatedBody, removeResponseHeader, sanitizeStatusCode, sanitizeStatusMessage, sealSession, send, sendError, sendIterable, sendNoContent, sendProxy, sendRedirect, sendStream, sendWebResponse, serveStatic, setCookie, setHeader, setHeaders, setResponseHeader, setResponseHeaders, setResponseStatus, splitCookiesString, toEventHandler, toNodeListener, toPlainHandler, toWebHandler, toWebRequest, unsealSession, updateSession, useBase, useSession, writeEarlyHints } from 'h3';
 export { buildAssetsURL as __buildAssetsURL, publicAssetsURL as __publicAssetsURL } from '/app/spotboard-ui/node_modules/nuxt/dist/core/runtime/nitro/utils/paths';
 export { defineAppConfig } from '/app/spotboard-ui/node_modules/nuxt/dist/core/runtime/nitro/utils/config';
+export { AssertionError, IllegalArgumentError, Problem, Team, TeamProblemStatus, TeamStatus, Run, Contest, ProblemSummary, FIFORunFeedingStrategy, RunFeeder } from '/app/spotboard-ui/server/utils/contest';
+export { adaptProblems, adaptTeams, adaptInitialJudgements, adaptEventFeed } from '/app/spotboard-ui/server/utils/domjudge-adapter';

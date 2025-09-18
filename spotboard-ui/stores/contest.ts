@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { Contest, RunFeeder, FIFORunFeedingStrategy, TeamStatus, Run } from '~/server/utils/contest';
-import { adaptProblems, adaptTeams, adaptEventFeed } from '~/server/utils/domjudge-adapter';
+import { adaptProblems, adaptTeams, adaptEventFeed, adaptInitialJudgements } from '~/server/utils/domjudge-adapter';
 
 export const useContestStore = defineStore('contest', {
   state: () => ({
@@ -63,6 +63,7 @@ export const useContestStore = defineStore('contest', {
       const cid = config.public.domjudgeContestId;
 
       try {
+        console.log("Attempting to load contest data from DOMjudge API...");
         const [contestData, problemsData, teamsData, groupsData] = await Promise.all([
           $fetch(`${baseUrl}/contests/${cid}`),
           $fetch(`${baseUrl}/contests/${cid}/problems`),
@@ -84,21 +85,44 @@ export const useContestStore = defineStore('contest', {
         const contest = Contest.createFromJson(contestJson as any);
         this.contest = contest;
 
-        // Fetch initial judgements to populate the scoreboard
         const initialJudgements = await $fetch(`${baseUrl}/contests/${cid}/judgements?strict=false`);
         const initialRuns = adaptInitialJudgements(initialJudgements as any, contest);
 
         this.runFeeder = new RunFeeder(contest, new FIFORunFeedingStrategy());
         this.runFeeder.fetchRunsFromArray(initialRuns);
 
-        // Feed the initial runs into the contest state
         this.contest.beginRunTransaction();
         this.runFeeder.feed(this.runFeeder.runCount);
         this.contest.commitRunTransaction();
+        console.log("Successfully loaded data from DOMjudge API.");
 
       } catch (e: any) {
-        this.error = `Failed to load contest data from DOMjudge API: ${e.message}`;
-        console.error(this.error, e);
+        console.error("Failed to load contest data from DOMjudge API, falling back to local files.", e);
+        this.error = `DOMjudge API error: ${e.message}. Falling back to local data.`;
+
+        try {
+          console.log("Attempting to load local contest.json and runs.json...");
+          const [contestData, runsData] = await Promise.all([
+            $fetch('/contest.json'),
+            $fetch('/runs.json'),
+          ]);
+
+          const contest = Contest.createFromJson(contestData as any);
+          this.contest = contest;
+
+          const runFeeder = new RunFeeder(contest, new FIFORunFeedingStrategy());
+          runFeeder.fetchRunsFromJson(runsData as any);
+          this.runFeeder = runFeeder;
+
+          this.contest.beginRunTransaction();
+          this.runFeeder.feed(this.runFeeder.runCount);
+          this.contest.commitRunTransaction();
+          console.log("Successfully loaded data from local files.");
+          this.error = null; // Clear previous API error if local fallback succeeds
+        } catch (localError: any) {
+            console.error("Failed to load contest data from local files as well.", localError);
+            this.error = `Failed to load from API and local files: ${localError.message}`;
+        }
       } finally {
         this.isLoading = false;
       }
@@ -145,11 +169,11 @@ export const useContestStore = defineStore('contest', {
 
             const config = useRuntimeConfig();
             const baseUrl = config.public.domjudgeApiBaseUrl;
+            if (!baseUrl) return; // Don't poll if we are in local mode
+
             const cid = config.public.domjudgeContestId;
 
             try {
-                // The event feed can be very large. We might need to handle streaming
-                // or pagination in a real-world scenario, but for now, we fetch it all.
                 const events = await $fetch(`${baseUrl}/contests/${cid}/event-feed?stream=false`);
                 const newRuns = adaptEventFeed(events as any, this.contest);
 
