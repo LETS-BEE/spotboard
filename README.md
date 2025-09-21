@@ -1,95 +1,73 @@
-Spotboard
-=========
+# Spotboard UI (Nuxt 3 Refactor)
 
-*Spotboard* is an awesome, fancy, and modern web-based scoreboard application for programming contests, especially ACM-ICPC.
+This project is a complete refactoring of the original Spotboard web application, built with a modern technology stack:
 
-Demo
-----
+-   **Framework**: [Nuxt 3](https://nuxt.com/)
+-   **UI Library**: [Vue 3](https://vuejs.org/)
+-   **Language**: [TypeScript](https://www.typescriptlang.org/)
+-   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+-   **State Management**: [Pinia](https://pinia.vuejs.org/)
 
-* Official Scoreboard:
-    ACM-ICPC Daejeon Regional
-    [[2015]](http://icpckorea.org/2015/REGIONAL/scoreboard.html)
-    [[2016]](http://icpckorea.org/2016/REGIONAL/scoreboard.html)
-* Award Ceremony Video:
-    [[2013]](https://youtu.be/ZXYwvFinZEk?t=1215)
-    [[2014]](https://youtu.be/UVAnGe35PY4)
-    [[2015]](https://youtu.be/kF5RR2TXgkk?t=287)
-    [[2016]](https://www.facebook.com/icpckorea/videos/1249185941806137/)
+The new application lives inside the `spotboard-ui/` directory. The legacy `webapp/` directory is still present in the repository but is no longer used.
 
-Usage
------
+## Features
 
-Spotboard consists of two main modules: a static **web application** (frontend),
-and the **feedserver** (backend: API server) that provides the contest information.
+-   **Modern UI**: A clean, responsive scoreboard interface built with Tailwind CSS.
+-   **Real-time Updates**: The scoreboard polls the DomJudge event feed every 15 seconds to display new submissions and judgements in near real-time.
+-   **DomJudge API Integration**: Fetches all contest data directly from a configured DomJudge instance, removing the need for static data files.
+-   **Award Slide Editor**: A simple, password-protected web interface at `/award-editor` to modify the `award_slide.json` file.
+-   **Search & Pagination**: Easily search for teams and navigate through the scoreboard pages.
 
-### Frontend: [Web Application][src-webapp]
+## Setup and Configuration
 
-Download [a webapp package](https://github.com/spotboard/spotboard/releases), and serve it using any HTTP server.
-We recommend `http-server -c-1` (disable cache) or `nginx`.
-A path to the API server and many other preferences can be configured in [config.js][config_sample].
+The new application is located in the `spotboard-ui/` directory. All commands should be run from within this directory.
 
-### Backend: FeedServer
+### 1. Installation
 
-The feedserver should provide the contest information and all the runs (submissions) during the contest,
-[in JSON][json_sample].
-For common contest systems such as [PC^2] or [Domjudge], please see below.
+First, navigate into the project directory and install the dependencies:
 
-Disclaimer: Some of internal API specifications might be not backward-compatible.
-
-Backend: Domjudge
------------------
-
-You may find [spotboard/domjudge-converter] useful.
-
-[spotboard/domjudge-converter]: https://github.com/spotboard/domjudge-converter
-
-
-Backend: PC^2
--------------
-
-Disclaimer: This part is not yet open-sourced, sorry :)
-
-*TL;DR)* Setup the `config.yaml`, then launch the spotboard server application.
-
-```
-$ vim config.yaml
-$ java -jar spotboard-server.jar
+```bash
+cd spotboard-ui
+npm install
 ```
 
-<!--
-- The web application can be hosted using commonly-used web servers such as Nginx and Apache,
-  or using the embedded web server provided. See the [detailed documentation](docs/webapp.md).
-- The feedserver should provide the contest information and all the runs (submissions) during the contest.
-  It is shipped with *off-the-shelf* bridges to other programming contest systems such as PC^2.
-  See the [detailed documentation](docs/feedserver.md).
--->
+### 2. Configuration
 
-[PC^2]: https://pc2.ecs.csus.edu/
-[Domjudge]: https://www.domjudge.org/
+The application requires configuration for the DomJudge API and the Award Slide Editor password. This is done via environment variables. Create a `.env` file in the `spotboard-ui` directory:
 
-[src-webapp]: https://github.com/spotboard/spotboard/tree/master/webapp
-[config_sample]: https://github.com/spotboard/spotboard/blob/master/webapp/src/config.js
-[json_sample]: https://github.com/spotboard/spotboard/tree/master/webapp/src/sample
+```env
+# The base URL of your DomJudge API instance
+NUXT_PUBLIC_DOMJUDGE_API_BASE_URL=https://your-domjudge-instance/api/v4
 
+# The ID of the contest you want to display
+NUXT_PUBLIC_DOMJUDGE_CONTEST_ID=your_contest_id
 
-Documentation
--------------
+# The password for the Award Slide Editor at /award-editor
+AWARD_SLIDE_PASSWORD=your_secret_password
+```
 
-> TODO
+If you do not provide these variables, the application will default to a public DomJudge demo instance and a default password (`domjudge`).
 
-Authors
--------
+## Development
 
-- Jongwook Choi ([@wookayin][gh-wookayin])
-- Wonha Ryu ([@beingryu][gh-beingryu])
+To start the development server, run:
 
-If you want to contribute to the project, please raise an issue or a pull request.
+```bash
+npm run dev
+```
 
-[gh-wookayin]: https://github.com/wookayin
-[gh-beingryu]: https://github.com/beingryu
+The application will be available at `http://localhost:3000`.
 
+## Production
 
-License
--------
+To build the application for production, run:
 
-MIT LICENSE.
+```bash
+npm run build
+```
+
+To preview the production build locally, run:
+
+```bash
+npm run preview
+```

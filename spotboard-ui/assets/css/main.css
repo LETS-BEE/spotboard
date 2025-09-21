@@ -1,0 +1,57 @@
+/* Import Google Fonts for Material Symbols and Expressive Typography */
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+/*
+  Material 3 Expressive Theme
+  Generated using the Material Theme Builder, with a Teal primary color.
+  This is a simplified set of the full M3 token system.
+*/
+:root {
+  --md-sys-color-primary: #006A6A;
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-primary-container: #9CF2F2;
+  --md-sys-color-on-primary-container: #002020;
+  --md-sys-color-primary-hover: #005E5E; /* Custom hover */
+
+  --md-sys-color-secondary: #4A6363;
+  --md-sys-color-on-secondary: #FFFFFF;
+  --md-sys-color-secondary-container: #CCE8E8;
+  --md-sys-color-on-secondary-container: #051F1F;
+  --md-sys-color-secondary-container-hover: #BFDDDD; /* Custom hover */
+
+  --md-sys-color-tertiary: #4A607C;
+  --md-sys-color-on-tertiary: #FFFFFF;
+  --md-sys-color-tertiary-container: #D2E4FF;
+  --md-sys-color-on-tertiary-container: #041C35;
+
+  --md-sys-color-error: #BA1A1A;
+  --md-sys-color-on-error: #FFFFFF;
+  --md-sys-color-error-container: #FFDAD6;
+  --md-sys-color-on-error-container: #410002;
+
+  --md-sys-color-background: #F4FAFA;
+  --md-sys-color-on-background: #171D1D;
+
+  --md-sys-color-surface: #F4FAFA;
+  --md-sys-color-on-surface: #171D1D;
+
+  --md-sys-color-surface-variant: #DAE5E5;
+  --md-sys-color-on-surface-variant: #3F4949;
+
+  --md-sys-color-outline: #6F7979;
+  --md-sys-color-outline-variant: #BFC9C9;
+
+  --md-sys-color-surface-container-lowest: #FFFFFF;
+  --md-sys-color-surface-container-low: #EEF4F4;
+  --md-sys-color-surface-container: #E8EEEE;
+  --md-sys-color-surface-container-high: #E2E9E9;
+  --md-sys-color-surface-container-highest: #DDE3E3;
+  --md-sys-color-surface-container-hover: #DDE3E3; /* Custom hover */
+}
+
+body {
+  font-family: 'Google Sans', 'Roboto', sans-serif;
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
+}
