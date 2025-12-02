@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { Contest, RunFeeder, FIFORunFeedingStrategy, TeamStatus, Run } from '~/server/utils/contest';
-import { adaptProblems, adaptTeams, adaptEventFeed, adaptInitialJudgements } from '~/server/utils/domjudge-adapter';
+import { Contest, RunFeeder, FIFORunFeedingStrategy, TeamStatus, Run } from '~/utils/contest';
+import { adaptProblems, adaptTeams, adaptEventFeed, adaptInitialJudgements } from '~/utils/domjudge-adapter';
 
 export const useContestStore = defineStore('contest', {
   state: () => ({
