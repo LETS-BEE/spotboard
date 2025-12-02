@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { Contest, RunFeeder, FIFORunFeedingStrategy, TeamStatus, Run } from '~/server/utils/contest';
-import { adaptProblems, adaptTeams, adaptEventFeed, adaptInitialJudgements } from '~/server/utils/domjudge-adapter';
+import { Contest, RunFeeder, FIFORunFeedingStrategy, TeamStatus, Run } from '~/utils/contest';
+import { adaptProblems, adaptTeams, adaptEventFeed, adaptInitialJudgements } from '~/utils/domjudge-adapter';
 
 export const useContestStore = defineStore('contest', {
   state: () => ({
@@ -12,6 +12,14 @@ export const useContestStore = defineStore('contest', {
     currentPage: 0,
     pageSize: 50,
     eventFeedTimer: null as NodeJS.Timeout | null,
+
+    // Auto Feed & Notifications
+    isAutoFeeding: false,
+    autoFeedTimer: null as NodeJS.Timeout | null,
+    notificationsEnabled: false,
+
+    // Recent Events
+    recentRuns: [] as Run[],
   }),
   getters: {
     isLoaded: (state) => !!state.contest,
@@ -128,18 +136,93 @@ export const useContestStore = defineStore('contest', {
       }
     },
 
+    toggleAutoFeed() {
+        this.isAutoFeeding = !this.isAutoFeeding;
+        if (this.isAutoFeeding) {
+            this.startAutoFeedLoop();
+        } else {
+            this.stopAutoFeedLoop();
+        }
+    },
+
+    toggleNotifications() {
+        this.notificationsEnabled = !this.notificationsEnabled;
+        if (this.notificationsEnabled) {
+            if (Notification.permission !== "granted") {
+                Notification.requestPermission().then(permission => {
+                    if (permission !== "granted") {
+                        this.notificationsEnabled = false;
+                    }
+                });
+            }
+        }
+    },
+
+    startAutoFeedLoop() {
+        if (this.autoFeedTimer) clearInterval(this.autoFeedTimer);
+        this.autoFeedTimer = setInterval(() => {
+            if (this.runFeeder && this.runFeeder.runCount > 0) {
+                this.feedOne();
+            }
+        }, 1000); // Feed one run every second
+    },
+
+    stopAutoFeedLoop() {
+        if (this.autoFeedTimer) {
+            clearInterval(this.autoFeedTimer);
+            this.autoFeedTimer = null;
+        }
+    },
+
     feedOne() {
         if (!this.runFeeder || !this.contest) return;
-        this.runFeeder.feed(1);
+
+        this.runFeeder.feed(1, (run) => {
+            this.handleRunProcessed(run);
+        });
+
         this.contest.updateTeamStatusesAndRanks();
         this.contest = this.contest; // Force reactivity
     },
 
     feedAll() {
         if (!this.runFeeder || !this.contest) return;
-        this.runFeeder.feed(this.runFeeder.runCount);
+
+        this.runFeeder.feed(this.runFeeder.runCount, (run) => {
+            this.handleRunProcessed(run);
+        });
+
         this.contest.updateTeamStatusesAndRanks();
         this.contest = this.contest; // Force reactivity
+    },
+
+    handleRunProcessed(run: Run) {
+        // Add to recent runs
+        // We create a lightweight object or clone to avoid reactivity issues if needed,
+        // but Run object should be fine if not mutated deeply.
+        // However, we want to ensure we have the *latest* state of the run (judged etc).
+        // The run passed from feed() is the one being reflected.
+
+        this.recentRuns.unshift(run);
+        if (this.recentRuns.length > 50) {
+            this.recentRuns.pop();
+        }
+
+        // Notification
+        if (this.notificationsEnabled && run.isAccepted()) {
+            this.showNotification(run);
+        }
+    },
+
+    showNotification(run: Run) {
+        if (!process.client) return;
+        const title = `Problem ${run.problem.name} Solved!`;
+        const body = `${run.team.name} solved problem ${run.problem.name} (${run.problem.title})`;
+
+        new Notification(title, {
+            body: body,
+            icon: `/balloons/${run.problem.color}.png`
+        });
     },
 
     setSearchQuery(query: string) {

@@ -5,6 +5,8 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  srcDir: '.',
+
   runtimeConfig: {
     public: {
       domjudgeApiBaseUrl: process.env.NUXT_PUBLIC_DOMJUDGE_API_BASE_URL || 'https://domjudge.iti.kit.edu/main/api/v4',

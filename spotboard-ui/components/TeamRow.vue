@@ -2,8 +2,17 @@
   <div class="team-row" :class="{ 'is-first-place': teamStatus.rank === 1 }">
     <div class="rank">{{ teamStatus.rank }}</div>
     <div class="team-info">
-      <div class="team-name">{{ teamStatus.team.name }}</div>
-      <div class="team-group">{{ teamStatus.team.getGroup(true) }}</div>
+        <div class="team-name">{{ teamStatus.team.name }}</div>
+        <div class="team-group">{{ teamStatus.team.getGroup(true) }}</div>
+
+        <div class="balloons-container">
+            <div
+                v-for="(balloon, index) in solvedBalloons"
+                :key="index"
+                class="balloon"
+                :style="{ backgroundImage: `url(/balloons/${balloon}.png)` }"
+            ></div>
+        </div>
     </div>
     <div class="solved">{{ teamStatus.getTotalSolved() }}</div>
     <div class="penalty">{{ teamStatus.getPenalty() }}</div>
@@ -24,6 +33,16 @@ import type { TeamStatus, TeamProblemStatus } from '~/server/utils/contest';
 const props = defineProps<{
   teamStatus: TeamStatus
 }>();
+
+const solvedBalloons = computed(() => {
+    const balloons: string[] = [];
+    Object.values(props.teamStatus.problemStatuses).forEach(ps => {
+        if (ps.isAccepted()) {
+            balloons.push(ps.problem.color);
+        }
+    });
+    return balloons;
+});
 
 const problemStatusClasses = (ps: TeamProblemStatus) => {
   if (ps.isAccepted()) {
@@ -96,6 +115,27 @@ const problemStatusClasses = (ps: TeamProblemStatus) => {
 
 .is-first-place .team-group {
     color: var(--md-sys-color-on-primary-container);
+}
+
+.balloons-container {
+    height: 1.5rem;
+    display: flex;
+    flex-direction: row-reverse; /* Stack from right to left like original */
+    justify-content: flex-end;
+    margin-top: 0.2rem;
+}
+
+.balloon {
+    width: 20px;
+    height: 24px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: -10px; /* Overlap */
+    filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.2));
+}
+
+.balloon:first-child {
+    margin-right: 0;
 }
 
 

@@ -24,6 +24,13 @@
         </button>
       </div>
       <div class="feed-controls">
+        <button @click="toggleAutoFeed" class="icon-button" :class="{ 'active': isAutoFeeding }" title="Auto Feed">
+            <span class="material-icons">{{ isAutoFeeding ? 'pause' : 'play_arrow' }}</span>
+        </button>
+        <button @click="toggleNotifications" class="icon-button" :class="{ 'active': notificationsEnabled }" title="Notifications">
+             <span class="material-icons">{{ notificationsEnabled ? 'visibility' : 'visibility_off' }}</span>
+        </button>
+        <div class="divider"></div>
         <button @click="feedOne" class="filled-button">Feed One</button>
         <button @click="feedAll" class="filled-tonal-button">Feed All</button>
       </div>
@@ -36,7 +43,7 @@ import { useContestStore } from '~/stores/contest';
 import { storeToRefs } from 'pinia';
 
 const contestStore = useContestStore();
-const { searchQuery, currentPage, totalPages, runFeeder } = storeToRefs(contestStore);
+const { searchQuery, currentPage, totalPages, runFeeder, isAutoFeeding, notificationsEnabled } = storeToRefs(contestStore);
 
 const formattedContestTime = computed(() => {
   const time = runFeeder.value?.contestTime ?? 0;
@@ -51,6 +58,14 @@ function feedOne() {
 
 function feedAll() {
   contestStore.feedAll();
+}
+
+function toggleAutoFeed() {
+    contestStore.toggleAutoFeed();
+}
+
+function toggleNotifications() {
+    contestStore.toggleNotifications();
 }
 
 function updateSearchQuery(event: Event) {
@@ -134,6 +149,13 @@ function changePage(amount: number) {
   gap: 0.5rem;
 }
 
+.divider {
+    width: 1px;
+    height: 24px;
+    background-color: var(--md-sys-color-outline-variant);
+    margin: 0 0.5rem;
+}
+
 .pagination-controls span {
     color: var(--md-sys-color-on-surface-variant);
     font-size: 0.9rem;
@@ -174,6 +196,11 @@ button:disabled {
 
 .icon-button:not(:disabled):hover {
     background-color: var(--md-sys-color-surface-container-hover);
+}
+
+.icon-button.active {
+    color: var(--md-sys-color-primary);
+    background-color: var(--md-sys-color-secondary-container);
 }
 
 .filled-button {

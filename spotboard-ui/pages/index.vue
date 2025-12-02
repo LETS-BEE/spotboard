@@ -10,8 +10,13 @@
     </div>
     <div v-else-if="contestStore.isLoaded" class="content-container">
       <HeaderControls />
-      <main>
-        <Scoreboard />
+      <main class="main-grid">
+        <div class="scoreboard-section">
+            <Scoreboard />
+        </div>
+        <div class="dashboard-section">
+            <RecentEvents />
+        </div>
       </main>
       <footer>
         <p>
@@ -52,9 +57,37 @@ onUnmounted(() => {
 
 <style scoped>
 .page-container {
-  max-width: 1600px;
+  max-width: 1800px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
+}
+
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.scoreboard-section {
+    min-width: 0; /* Prevents flex/grid overflow issues */
+}
+
+.dashboard-section {
+    position: sticky;
+    top: 1rem;
+    height: calc(100vh - 150px);
+    overflow: hidden;
+}
+
+@media (max-width: 1200px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+    .dashboard-section {
+        position: static;
+        height: 500px;
+    }
 }
 
 .state-container {
