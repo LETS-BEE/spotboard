@@ -14,15 +14,6 @@
           @input="updateSearchQuery"
         />
       </div>
-      <div class="pagination-controls">
-        <button @click="changePage(-1)" :disabled="currentPage === 0" class="icon-button">
-          <span class="material-icons">chevron_left</span>
-        </button>
-        <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-        <button @click="changePage(1)" :disabled="currentPage >= totalPages - 1" class="icon-button">
-          <span class="material-icons">chevron_right</span>
-        </button>
-      </div>
       <div class="feed-controls">
         <button @click="toggleAutoFeed" class="icon-button" :class="{ 'active': isAutoFeeding }" title="Auto Feed">
             <span class="material-icons">{{ isAutoFeeding ? 'pause' : 'play_arrow' }}</span>
@@ -43,7 +34,7 @@ import { useContestStore } from '~/stores/contest';
 import { storeToRefs } from 'pinia';
 
 const contestStore = useContestStore();
-const { searchQuery, currentPage, totalPages, runFeeder, isAutoFeeding, notificationsEnabled } = storeToRefs(contestStore);
+const { searchQuery, runFeeder, isAutoFeeding, notificationsEnabled } = storeToRefs(contestStore);
 
 const formattedContestTime = computed(() => {
   const time = runFeeder.value?.contestTime ?? 0;
@@ -71,10 +62,6 @@ function toggleNotifications() {
 function updateSearchQuery(event: Event) {
     const target = event.target as HTMLInputElement;
     contestStore.setSearchQuery(target.value);
-}
-
-function changePage(amount: number) {
-    contestStore.changePage(amount);
 }
 </script>
 

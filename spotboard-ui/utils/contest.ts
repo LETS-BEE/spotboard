@@ -447,7 +447,7 @@ export class Contest {
       return 0;
     };
 
-    stableSort(rts, teamComparator);
+    rts = stableSort(rts, teamComparator);
 
     rts.forEach((ts, i) => {
       ts.rank = i + 1;

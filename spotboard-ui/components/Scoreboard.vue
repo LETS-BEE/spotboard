@@ -12,7 +12,7 @@
       </div>
     </div>
     <div class="scoreboard-body">
-      <TeamRow v-for="teamStatus in paginatedTeams" :key="teamStatus.team.id" :team-status="teamStatus" />
+      <TeamRow v-for="teamStatus in filteredTeams" :key="teamStatus.team.id" :team-status="teamStatus" />
     </div>
   </div>
 </template>
@@ -22,7 +22,7 @@ import { useContestStore } from '~/stores/contest';
 import { storeToRefs } from 'pinia';
 
 const contestStore = useContestStore();
-const { paginatedTeams } = storeToRefs(contestStore);
+const { filteredTeams } = storeToRefs(contestStore);
 </script>
 
 <style scoped>

@@ -17,10 +17,10 @@
     <div class="solved">{{ teamStatus.getTotalSolved() }}</div>
     <div class="penalty">{{ teamStatus.getPenalty() }}</div>
     <div class="problems">
-      <div v-for="ps in Object.values(teamStatus.problemStatuses)" :key="ps.problem.id" class="problem-status-container">
-        <div v-if="ps.isAttempted()" :class="problemStatusClasses(ps)" class="problem-status">
-          <span v-if="ps.isAccepted()">{{ ps.getSolvedTime() }}'</span>
-          <span v-else-if="ps.getFailedAttempts() > 0">-{{ ps.getFailedAttempts() }}</span>
+      <div v-for="problem in contestStore.contest?.problems" :key="problem.id" class="problem-status-container">
+        <div v-if="teamStatus.getProblemStatus(problem).isAttempted()" :class="problemStatusClasses(teamStatus.getProblemStatus(problem))" class="problem-status">
+          <span v-if="teamStatus.getProblemStatus(problem).isAccepted()">{{ teamStatus.getProblemStatus(problem).getSolvedTime() }}'</span>
+          <span v-else-if="teamStatus.getProblemStatus(problem).getFailedAttempts() > 0">-{{ teamStatus.getProblemStatus(problem).getFailedAttempts() }}</span>
         </div>
       </div>
     </div>
@@ -28,11 +28,14 @@
 </template>
 
 <script setup lang="ts">
-import type { TeamStatus, TeamProblemStatus } from '~/server/utils/contest';
+import type { TeamStatus, TeamProblemStatus } from '~/utils/contest';
+import { useContestStore } from '~/stores/contest';
 
 const props = defineProps<{
   teamStatus: TeamStatus
 }>();
+
+const contestStore = useContestStore();
 
 const solvedBalloons = computed(() => {
     const balloons: string[] = [];

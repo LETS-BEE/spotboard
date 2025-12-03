@@ -9,8 +9,6 @@ export const useContestStore = defineStore('contest', {
     isLoading: false,
     error: null as string | null,
     searchQuery: '',
-    currentPage: 0,
-    pageSize: 50,
     eventFeedTimer: null as NodeJS.Timeout | null,
 
     // Auto Feed & Notifications
@@ -34,16 +32,6 @@ export const useContestStore = defineStore('contest', {
         const regex = new RegExp(this.searchQuery, 'i');
         return rankedTeams.filter(ts => regex.test(ts.team.name) || regex.test(ts.team.getGroup(true) || ''));
     },
-
-    paginatedTeams(): TeamStatus[] {
-        const start = this.currentPage * this.pageSize;
-        const end = start + this.pageSize;
-        return this.filteredTeams.slice(start, end);
-    },
-
-    totalPages(): number {
-        return Math.ceil(this.filteredTeams.length / this.pageSize);
-    }
   },
   actions: {
     rehydrate() {
@@ -227,14 +215,6 @@ export const useContestStore = defineStore('contest', {
 
     setSearchQuery(query: string) {
         this.searchQuery = query;
-        this.currentPage = 0;
-    },
-
-    changePage(amount: number) {
-        const newPage = this.currentPage + amount;
-        if (newPage >= 0 && newPage < this.totalPages) {
-            this.currentPage = newPage;
-        }
     },
 
     stopEventFeedPolling() {
