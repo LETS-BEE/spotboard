@@ -1,6 +1,9 @@
 <template>
   <div v-if="isVisible" class="award-slide-overlay" @click="$emit('close')">
     <div class="award-slide-card" @click.stop>
+      <div v-if="data.icon" class="award-icon-container">
+          <img :src="`/img/award/${data.icon}.png`" alt="Award Icon" class="award-icon" />
+      </div>
       <div class="rank-badge">{{ data.rank }}</div>
       <div class="content">
         <h2 class="group-name">{{ data.group }}</h2>
@@ -50,15 +53,27 @@ const emit = defineEmits(['close']);
 
 .award-slide-card {
   background: white;
-  width: 80%;
-  max-width: 1000px;
+  width: 70%;
+  max-width: 800px; /* Reduced max-width */
   border-radius: 32px;
-  padding: 4rem;
+  padding: 3rem; /* Reduced padding */
   text-align: center;
   position: relative;
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   animation: slideUp 2.0s cubic-bezier(0.22, 1, 0.36, 1);
-  overflow: hidden;
+  overflow: visible; /* Changed to visible to allow icon/badge to pop out if needed, or keep hidden? Icon might need to be inside. */
+}
+
+/* Icon Styling */
+.award-icon-container {
+    margin-bottom: 1rem;
+}
+
+.award-icon {
+    height: 120px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
 }
 
 .rank-badge {
@@ -67,15 +82,15 @@ const emit = defineEmits(['close']);
     right: 40px;
     background: var(--md-sys-color-primary);
     color: var(--md-sys-color-on-primary);
-    font-size: 4rem;
+    font-size: 3rem; /* Reduced size */
     font-weight: 800;
-    padding: 1rem 2rem;
+    padding: 0.8rem 1.6rem;
     border-radius: 0 0 20px 20px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 .group-name {
-    font-size: 2rem;
+    font-size: 1.5rem; /* Reduced size */
     color: var(--md-sys-color-secondary);
     margin-bottom: 0.5rem;
     font-weight: 500;
@@ -84,10 +99,10 @@ const emit = defineEmits(['close']);
 }
 
 .team-name {
-    font-size: 4rem;
+    font-size: 3rem; /* Reduced size */
     font-weight: 900;
     color: var(--md-sys-color-on-surface);
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     line-height: 1.1;
 }
 
@@ -95,17 +110,17 @@ const emit = defineEmits(['close']);
     text-align: left;
     background: var(--md-sys-color-surface-variant);
     color: var(--md-sys-color-on-surface-variant);
-    padding: 2rem;
+    padding: 1.5rem; /* Reduced padding */
     border-radius: 16px;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
 }
 
 .other-item {
     display: flex;
     justify-content: space-between;
-    padding: 0.5rem 0;
+    padding: 0.4rem 0;
     border-bottom: 1px solid rgba(0,0,0,0.1);
-    font-size: 1.2rem;
+    font-size: 1.1rem; /* Reduced size */
 }
 
 .other-item:last-child {
@@ -113,8 +128,8 @@ const emit = defineEmits(['close']);
 }
 
 .description {
-    margin-top: 2rem;
-    font-size: 1.5rem;
+    margin-top: 1.5rem;
+    font-size: 1.3rem; /* Reduced size */
     color: var(--md-sys-color-on-surface-variant);
 }
 
