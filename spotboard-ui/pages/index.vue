@@ -91,10 +91,8 @@ function handleKeydown(e: KeyboardEvent) {
 
     if (e.code === 'Space' || e.code === 'ArrowRight' || e.code === 'Enter') {
         e.preventDefault();
-        // If award slide is visible, hide it but do not proceed to next step
-        if (contestStore.awardSlideVisible) {
-            contestStore.awardSlideVisible = false;
-        } else {
+        // If award slide is visible, do not proceed to next step
+        if (!contestStore.awardSlideVisible) {
             contestStore.nextAwardStep();
         }
     } else if (e.code === 'Escape') {
