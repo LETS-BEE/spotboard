@@ -1,73 +1,36 @@
-# Spotboard UI (Nuxt 3 Refactor)
+# Spotboard
 
-This project is a complete refactoring of the original Spotboard web application, built with a modern technology stack:
+Spotboard는 ACM-ICPC 스타일의 프로그래밍 대회를 위한 스코어보드 시스템입니다. 이 프로젝트는 최신 웹 기술인 Nuxt 4와 Vue 3를 사용하여 구현되었습니다.
 
--   **Framework**: [Nuxt 3](https://nuxt.com/)
--   **UI Library**: [Vue 3](https://vuejs.org/)
--   **Language**: [TypeScript](https://www.typescriptlang.org/)
--   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
--   **State Management**: [Pinia](https://pinia.vuejs.org/)
+## 기술 스택
+- **프레임워크:** Nuxt 4, Vue 3
+- **상태 관리:** Pinia
+- **디자인:** Material Design 3 (Expressive)
+- **언어:** TypeScript
 
-The new application lives inside the `spotboard-ui/` directory. The legacy `webapp/` directory is still present in the repository but is no longer used.
+## 시작하기
 
-## Features
+### 설치 및 실행
 
--   **Modern UI**: A clean, responsive scoreboard interface built with Tailwind CSS.
--   **Real-time Updates**: The scoreboard polls the DomJudge event feed every 15 seconds to display new submissions and judgements in near real-time.
--   **DomJudge API Integration**: Fetches all contest data directly from a configured DomJudge instance, removing the need for static data files.
--   **Award Slide Editor**: A simple, password-protected web interface at `/award-editor` to modify the `award_slide.json` file.
--   **Search & Pagination**: Easily search for teams and navigate through the scoreboard pages.
+1. 의존성 설치:
+   ```bash
+   npm install
+   ```
 
-## Setup and Configuration
+2. 개발 서버 실행:
+   ```bash
+   npm run dev
+   ```
 
-The new application is located in the `spotboard-ui/` directory. All commands should be run from within this directory.
+3. 프로덕션 빌드:
+   ```bash
+   npm run build
+   ```
 
-### 1. Installation
+## 주요 기능
+- 실시간 스코어보드 업데이트
+- 팀별 순위, 문제 해결 현황, 페널티 표시
+- 자동/수동 피드 제어
+- 검색 기능
 
-First, navigate into the project directory and install the dependencies:
-
-```bash
-cd spotboard-ui
-npm install
-```
-
-### 2. Configuration
-
-The application requires configuration for the DomJudge API and the Award Slide Editor password. This is done via environment variables. Create a `.env` file in the `spotboard-ui` directory:
-
-```env
-# The base URL of your DomJudge API instance
-NUXT_PUBLIC_DOMJUDGE_API_BASE_URL=https://your-domjudge-instance/api/v4
-
-# The ID of the contest you want to display
-NUXT_PUBLIC_DOMJUDGE_CONTEST_ID=your_contest_id
-
-# The password for the Award Slide Editor at /award-editor
-AWARD_SLIDE_PASSWORD=your_secret_password
-```
-
-If you do not provide these variables, the application will default to a public DomJudge demo instance and a default password (`domjudge`).
-
-## Development
-
-To start the development server, run:
-
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:3000`.
-
-## Production
-
-To build the application for production, run:
-
-```bash
-npm run build
-```
-
-To preview the production build locally, run:
-
-```bash
-npm run preview
-```
+자세한 내용은 `spotboard-ui/README.md`를 참고하세요.
