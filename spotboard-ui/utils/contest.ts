@@ -531,7 +531,7 @@ export abstract class AbstractRunFeedingStrategy {
 }
 
 export class FIFORunFeedingStrategy extends AbstractRunFeedingStrategy {
-    private runPools: Run[] = [];
+    public runPools: Run[] = [];
 
     popRun(): Run | undefined {
         return this.runPools.shift();
