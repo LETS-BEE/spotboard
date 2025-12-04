@@ -1,6 +1,8 @@
 # Spotboard UI
 
-Spotboard UI는 프로그래밍 대회(ICPC 스타일)를 위한 최신 스코어보드 시스템입니다. DOMjudge와 같은 저지 시스템과 연동하여 실시간 순위, 제출 피드, 그리고 시상식(Award Ceremony) 기능을 제공합니다. 이 프로젝트는 Nuxt 4, Vue 3, Pinia, TypeScript를 기반으로 구축되었습니다.
+> Spotboard UI는 프로그래밍 대회(ICPC 스타일)를 위한 최신 스코어보드 시스템입니다.  
+> DOMjudge와 같은 저지 시스템과 연동하여 실시간 순위, 제출 피드, 그리고 시상식(Award Ceremony) 기능을 제공합니다.  
+> 이 프로젝트는 Nuxt 4, Vue 3, Pinia, TypeScript를 기반으로 구축되었습니다.  
 
 ## 주요 기능
 
