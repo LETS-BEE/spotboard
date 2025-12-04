@@ -4,8 +4,10 @@
         'is-first-place': teamStatus.rank === 1 && !contestStore.awardMode,
         'award-focused': contestStore.awardMode && contestStore.currentAwardTeamId === teamStatus.team.id,
         'award-dimmed': contestStore.awardMode && contestStore.currentAwardTeamId !== teamStatus.team.id && !isFinalized,
-        'award-finalized': contestStore.awardMode && isFinalized
+        'award-finalized': contestStore.awardMode && isFinalized,
+        'is-clickable': contestStore.awardMode && isFinalized
     }"
+    @click="handleClick"
   >
     <div class="rank">{{ teamStatus.rank }}</div>
     <div class="team-info">
@@ -74,6 +76,12 @@ const problemStatusClasses = (ps: TeamProblemStatus) => {
   // A neutral, low-emphasis state for attempted but not yet judged
   return 'is-attempted';
 };
+
+function handleClick() {
+    if (contestStore.awardMode && isFinalized.value) {
+        contestStore.showAwardSlideForTeam(props.teamStatus.team.id);
+    }
+}
 </script>
 
 <style scoped>
@@ -95,6 +103,10 @@ const problemStatusClasses = (ps: TeamProblemStatus) => {
   background-color: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);
   border-left: 5px solid var(--md-sys-color-primary);
+}
+
+.team-row.is-clickable {
+    cursor: pointer;
 }
 
 /* Award Mode Styles */

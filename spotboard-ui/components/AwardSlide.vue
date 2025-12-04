@@ -45,7 +45,7 @@ const emit = defineEmits(['close']);
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.5s ease;
 }
 
 .award-slide-card {
@@ -57,7 +57,7 @@ const emit = defineEmits(['close']);
   text-align: center;
   position: relative;
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp 2.0s cubic-bezier(0.22, 1, 0.36, 1);
   overflow: hidden;
 }
 
@@ -124,7 +124,7 @@ const emit = defineEmits(['close']);
 }
 
 @keyframes slideUp {
-    from { transform: translateY(50px); opacity: 0; }
+    from { transform: translateY(100px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
 </style>

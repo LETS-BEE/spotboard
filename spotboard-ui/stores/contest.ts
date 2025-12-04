@@ -324,6 +324,21 @@ export const useContestStore = defineStore('contest', {
         this.awardSlideVisible = false;
     },
 
+    async showAwardSlideForTeam(teamId: number) {
+        try {
+            const slides = await $fetch('/api/award-slide');
+            if (slides && slides.slides) {
+                const slide = slides.slides.find((s: any) => s.id == teamId);
+                if (slide) {
+                    this.awardSlideData = slide;
+                    this.awardSlideVisible = true;
+                }
+            }
+        } catch (e) {
+            console.error("Failed to fetch award slide:", e);
+        }
+    },
+
     async nextAwardStep() {
         if (!this.contest || !this.runFeeder) return;
 
@@ -366,18 +381,7 @@ export const useContestStore = defineStore('contest', {
             this.finalizedTeams.push(this.currentAwardTeamId);
 
             // Show Award Slide if exists
-            try {
-                const slides = await $fetch('/api/award-slide');
-                if (slides && slides.slides) {
-                    const slide = slides.slides.find((s: any) => s.id == this.currentAwardTeamId);
-                    if (slide) {
-                        this.awardSlideData = slide;
-                        this.awardSlideVisible = true;
-                    }
-                }
-            } catch (e) {
-                console.error("Failed to fetch award slide:", e);
-            }
+            this.showAwardSlideForTeam(this.currentAwardTeamId);
         }
     },
 
