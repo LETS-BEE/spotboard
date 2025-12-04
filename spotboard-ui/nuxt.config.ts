@@ -7,6 +7,15 @@ export default defineNuxtConfig({
 
   srcDir: '.',
 
+  nitro: {
+    storage: {
+      data: {
+        driver: 'fs',
+        base: './server/storage/data'
+      }
+    }
+  },
+
   runtimeConfig: {
     public: {
       domjudgeApiBaseUrl: process.env.NUXT_PUBLIC_DOMJUDGE_API_BASE_URL || 'https://domjudge.iti.kit.edu/main/api/v4',

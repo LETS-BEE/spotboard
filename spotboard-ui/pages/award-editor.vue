@@ -25,6 +25,9 @@
         </div>
         <div class="form-field">
           <label for="content">JSON Content</label>
+          <p class="help-text">
+              Format: { "slides": [ { "id": "teamId", "name": "Team Name", "group": "Group", "rank": 1, "description": "Winner...", "others": [...] } ] }
+          </p>
           <textarea
             id="content"
             v-model="content"
@@ -33,6 +36,15 @@
           ></textarea>
         </div>
         <div class="form-actions">
+           <button
+            type="button"
+            @click="previewSlide"
+            class="text-button"
+            :disabled="!isValidJson"
+          >
+            <span class="material-icons">visibility</span>
+            Preview First Slide
+          </button>
           <button
             type="submit"
             :disabled="isSaving"
@@ -44,17 +56,30 @@
         </div>
       </form>
     </div>
+
+    <!-- Preview Overlay -->
+    <AwardSlide
+        v-if="showPreview"
+        :is-visible="showPreview"
+        :data="previewData"
+        @close="showPreview = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+// Auto-import of components should work in Nuxt, but explicit import is safe
+import AwardSlide from '~/components/AwardSlide.vue';
 
 const password = ref('');
 const content = ref('');
 const isSaving = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
+
+const showPreview = ref(false);
+const previewData = ref<any>(null);
 
 onMounted(async () => {
   try {
@@ -66,6 +91,29 @@ onMounted(async () => {
     console.error(e);
   }
 });
+
+const isValidJson = computed(() => {
+    try {
+        JSON.parse(content.value);
+        return true;
+    } catch (e) {
+        return false;
+    }
+});
+
+function previewSlide() {
+    try {
+        const json = JSON.parse(content.value);
+        if (json.slides && json.slides.length > 0) {
+            previewData.value = json.slides[0];
+            showPreview.value = true;
+        } else {
+            errorMessage.value = "No slides found in JSON to preview.";
+        }
+    } catch (e) {
+        errorMessage.value = "Invalid JSON.";
+    }
+}
 
 async function saveContent() {
   isSaving.value = true;
@@ -144,6 +192,13 @@ async function saveContent() {
   color: var(--md-sys-color-on-surface-variant);
 }
 
+.help-text {
+    font-size: 0.8rem;
+    color: var(--md-sys-color-on-surface-variant);
+    margin-bottom: 0.5rem;
+    font-family: monospace;
+}
+
 .editor-form input,
 .editor-form textarea {
   width: 100%;
@@ -170,6 +225,7 @@ async function saveContent() {
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 1rem;
 }
 
 .filled-button {
@@ -186,6 +242,18 @@ async function saveContent() {
   gap: 0.5rem;
 }
 
+.text-button {
+    background: transparent;
+    border: none;
+    color: var(--md-sys-color-primary);
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.text-button:disabled,
 .filled-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;

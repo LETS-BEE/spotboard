@@ -1,5 +1,14 @@
 <template>
-  <div class="team-row" :class="{ 'is-first-place': teamStatus.rank === 1 }">
+  <div class="team-row"
+    :class="{
+        'is-first-place': teamStatus.rank === 1 && !contestStore.awardMode,
+        'award-focused': contestStore.awardMode && contestStore.currentAwardTeamId === teamStatus.team.id,
+        'award-dimmed': contestStore.awardMode && contestStore.currentAwardTeamId !== teamStatus.team.id && !isFinalized,
+        'award-finalized': contestStore.awardMode && isFinalized,
+        'is-clickable': contestStore.awardMode && isFinalized
+    }"
+    @click="handleClick"
+  >
     <div class="rank">{{ teamStatus.rank }}</div>
     <div class="team-info">
         <div class="team-name">{{ teamStatus.team.name }}</div>
@@ -37,6 +46,10 @@ const props = defineProps<{
 
 const contestStore = useContestStore();
 
+const isFinalized = computed(() => {
+    return contestStore.finalizedTeams.includes(props.teamStatus.team.id);
+});
+
 const solvedBalloons = computed(() => {
     const balloons: string[] = [];
     Object.values(props.teamStatus.problemStatuses).forEach(ps => {
@@ -63,6 +76,12 @@ const problemStatusClasses = (ps: TeamProblemStatus) => {
   // A neutral, low-emphasis state for attempted but not yet judged
   return 'is-attempted';
 };
+
+function handleClick() {
+    if (contestStore.awardMode && isFinalized.value) {
+        contestStore.showAwardSlideForTeam(props.teamStatus.team.id);
+    }
+}
 </script>
 
 <style scoped>
@@ -73,7 +92,7 @@ const problemStatusClasses = (ps: TeamProblemStatus) => {
   gap: 1rem;
   padding: 0.75rem 1.5rem;
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease, opacity 0.2s ease;
 }
 
 .team-row:hover {
@@ -84,6 +103,37 @@ const problemStatusClasses = (ps: TeamProblemStatus) => {
   background-color: var(--md-sys-color-primary-container);
   color: var(--md-sys-color-on-primary-container);
   border-left: 5px solid var(--md-sys-color-primary);
+}
+
+.team-row.is-clickable {
+    cursor: pointer;
+}
+
+/* Award Mode Styles */
+.team-row.award-dimmed {
+    opacity: 0.3;
+    filter: grayscale(0.8);
+}
+
+.team-row.award-focused {
+    opacity: 1;
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    background-color: #333; /* Dark theme focused bg */
+    border: 1px solid #666;
+    z-index: 10;
+    position: relative;
+    color: white;
+}
+
+.team-row.award-finalized {
+    opacity: 1;
+    border-left: 5px solid gold; /* Mark finalized teams clearly */
+}
+
+/* Ensure text colors are readable in dark award mode */
+.award-focused .team-name, .award-focused .rank, .award-focused .solved, .award-focused .penalty {
+    color: white !important;
 }
 
 .rank {
