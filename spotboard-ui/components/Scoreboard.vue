@@ -11,9 +11,9 @@
         </div>
       </div>
     </div>
-    <div class="scoreboard-body">
+    <TransitionGroup name="scoreboard-list" tag="div" class="scoreboard-body">
       <TeamRow v-for="teamStatus in filteredTeams" :key="teamStatus.team.id" :team-status="teamStatus" />
-    </div>
+    </TransitionGroup>
   </div>
 </template>
 
@@ -73,5 +73,24 @@ const { filteredTeams } = storeToRefs(contestStore);
 
 .scoreboard-body {
   /* This container holds the rows */
+  position: relative;
+}
+
+/* FLIP Animation for ranking changes */
+.scoreboard-list-move,
+.scoreboard-list-enter-active,
+.scoreboard-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.scoreboard-list-enter-from,
+.scoreboard-list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.scoreboard-list-leave-active {
+  position: absolute; /* Ensures smooth removal */
+  width: 100%; /* Keep width during exit */
 }
 </style>

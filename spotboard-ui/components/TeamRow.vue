@@ -11,10 +11,10 @@
   >
     <div class="rank">{{ teamStatus.rank }}</div>
     <div class="team-info">
-        <div class="team-name">{{ teamStatus.team.name }}</div>
-        <div class="team-group">{{ teamStatus.team.getGroup(true) }}</div>
+        <div class="team-name">{{ isObfuscated ? '?????' : teamStatus.team.name }}</div>
+        <div class="team-group" v-if="!isObfuscated">{{ teamStatus.team.getGroup(true) }}</div>
 
-        <div class="balloons-container">
+        <div class="balloons-container" v-if="!isObfuscated">
             <div
                 v-for="(balloon, index) in solvedBalloons"
                 :key="index"
@@ -50,7 +50,18 @@ const isFinalized = computed(() => {
     return contestStore.finalizedTeams.includes(props.teamStatus.team.id);
 });
 
+const hasRuns = computed(() => {
+    // Check if team has any attempts at all
+    return Object.values(props.teamStatus.problemStatuses).some(ps => ps.isAttempted());
+});
+
+const isObfuscated = computed(() => {
+    // Hide teams with no runs only in Award Mode
+    return contestStore.awardMode && !hasRuns.value;
+});
+
 const solvedBalloons = computed(() => {
+    if (isObfuscated.value) return [];
     const balloons: string[] = [];
     Object.values(props.teamStatus.problemStatuses).forEach(ps => {
         if (ps.isAccepted()) {
@@ -61,21 +72,44 @@ const solvedBalloons = computed(() => {
 });
 
 const problemStatusClasses = (ps: TeamProblemStatus) => {
+  const classes = [];
+
   if (ps.isAccepted()) {
     // A vibrant, successful green
-    return 'is-accepted';
-  }
-  if (ps.isFailed()) {
+    classes.push('is-accepted');
+  } else if (ps.isFailed()) {
     // A clear, but not jarring, red
-    return 'is-failed';
-  }
-  if (ps.isPending()) {
+    classes.push('is-failed');
+  } else if (ps.isPending()) {
     // An attention-grabbing yellow/orange
-    return 'is-pending';
+    classes.push('is-pending');
+  } else {
+    // A neutral, low-emphasis state for attempted but not yet judged
+    classes.push('is-attempted');
   }
-  // A neutral, low-emphasis state for attempted but not yet judged
-  return 'is-attempted';
+
+  // Check for animation trigger
+  const anim = animationState.value[ps.problem.id];
+  if (anim) {
+    classes.push(anim);
+  }
+
+  return classes.join(' ');
 };
+
+// Animation State
+const animationState = ref<{ [problemId: number]: string }>({});
+// Configuration for animation type ('flash' or 'flip')
+const ANIMATION_TYPE = 'flip'; // Can be 'flash' or 'flip'
+
+function triggerAnimation(problemId: number) {
+    animationState.value[problemId] = `animate-${ANIMATION_TYPE}`;
+
+    // Remove class after animation completes to allow re-triggering
+    setTimeout(() => {
+        delete animationState.value[problemId];
+    }, 1000); // Match CSS animation duration
+}
 
 function handleClick() {
     if (contestStore.awardMode && isFinalized.value) {
@@ -261,5 +295,29 @@ function handleClick() {
   50% {
     opacity: 0.7;
   }
+}
+
+/* Flash Animation */
+.animate-flash {
+    animation: flash-animation 0.5s ease-in-out;
+}
+
+@keyframes flash-animation {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.5); filter: brightness(2); z-index: 10; }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* Flip Animation */
+.animate-flip {
+    animation: flip-animation 0.8s ease-in-out;
+    backface-visibility: visible;
+}
+
+@keyframes flip-animation {
+    0% { transform: perspective(400px) rotateY(0); }
+    40% { transform: perspective(400px) rotateY(90deg); }
+    60% { transform: perspective(400px) rotateY(90deg); } /* Hold briefly? */
+    100% { transform: perspective(400px) rotateY(0); }
 }
 </style>
