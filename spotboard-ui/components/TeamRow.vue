@@ -11,10 +11,10 @@
   >
     <div class="rank">{{ teamStatus.rank }}</div>
     <div class="team-info">
-        <div class="team-name">{{ teamStatus.team.name }}</div>
-        <div class="team-group">{{ teamStatus.team.getGroup(true) }}</div>
+        <div class="team-name">{{ isObfuscated ? '?????' : teamStatus.team.name }}</div>
+        <div class="team-group" v-if="!isObfuscated">{{ teamStatus.team.getGroup(true) }}</div>
 
-        <div class="balloons-container">
+        <div class="balloons-container" v-if="!isObfuscated">
             <div
                 v-for="(balloon, index) in solvedBalloons"
                 :key="index"
@@ -50,7 +50,18 @@ const isFinalized = computed(() => {
     return contestStore.finalizedTeams.includes(props.teamStatus.team.id);
 });
 
+const hasRuns = computed(() => {
+    // Check if team has any attempts at all
+    return Object.values(props.teamStatus.problemStatuses).some(ps => ps.isAttempted());
+});
+
+const isObfuscated = computed(() => {
+    // Hide teams with no runs only in Award Mode
+    return contestStore.awardMode && !hasRuns.value;
+});
+
 const solvedBalloons = computed(() => {
+    if (isObfuscated.value) return [];
     const balloons: string[] = [];
     Object.values(props.teamStatus.problemStatuses).forEach(ps => {
         if (ps.isAccepted()) {
@@ -61,21 +72,97 @@ const solvedBalloons = computed(() => {
 });
 
 const problemStatusClasses = (ps: TeamProblemStatus) => {
+  const classes = [];
+
   if (ps.isAccepted()) {
     // A vibrant, successful green
-    return 'is-accepted';
-  }
-  if (ps.isFailed()) {
+    classes.push('is-accepted');
+  } else if (ps.isFailed()) {
     // A clear, but not jarring, red
-    return 'is-failed';
-  }
-  if (ps.isPending()) {
+    classes.push('is-failed');
+  } else if (ps.isPending()) {
     // An attention-grabbing yellow/orange
-    return 'is-pending';
+    classes.push('is-pending');
+  } else {
+    // A neutral, low-emphasis state for attempted but not yet judged
+    classes.push('is-attempted');
   }
-  // A neutral, low-emphasis state for attempted but not yet judged
-  return 'is-attempted';
+
+  // Check for animation trigger
+  const anim = animationState.value[ps.problem.id];
+  if (anim) {
+    classes.push(anim);
+  }
+
+  return classes.join(' ');
 };
+
+// Animation State
+const animationState = ref<{ [problemId: number]: string }>({});
+// Configuration for animation type ('flash' or 'flip')
+const ANIMATION_TYPE = 'flip'; // Can be 'flash' or 'flip'
+
+// Watch for changes in problem status for this team
+watch(
+  () => props.teamStatus.problemStatuses,
+  (newStatuses, oldStatuses) => {
+    if (!contestStore.awardMode) return;
+
+    for (const pidStr in newStatuses) {
+      const pid = parseInt(pidStr);
+      const ps = newStatuses[pid];
+
+      // We need a way to detect if this specific problem just updated.
+      // Since `teamStatus` is mutable and deep watched, `oldStatuses` might be the same object reference.
+      // However, we can track the "last known state" locally if needed.
+      // But `nextAwardStep` updates the run, which updates the team status.
+      // A simpler way: Watch specific properties we care about if possible, or just trigger on deep change.
+
+      // Let's rely on the fact that if we are the "current focused team" in award mode, we want to animate changes.
+      if (contestStore.currentAwardTeamId === props.teamStatus.team.id) {
+          // If this problem status changed recently (we can check run timestamp or just trigger?)
+          // Since we don't have easy "diff" here without deep cloning previous state,
+          // we can check if it matches the "last processed run" if we had access to it.
+
+          // Alternative: Use a specialized watcher or just trigger animation on any change if it's the focused team.
+          // But we want to animate ONLY the problem that changed.
+
+          // Let's assume any change in "isAccepted", "isFailed" or "isPending" warrants an animation check.
+          // Since we can't easily diff deep objects that are mutated in place without a clone,
+          // we will implement a lightweight tracker.
+      }
+    }
+  },
+  { deep: true }
+);
+
+// Better approach: Watch the 'runs' of the problem statuses?
+// Or simply, since we are only animating the *currently focused* team in award mode,
+// we can watch `contestStore.recentRuns`. If the top run belongs to this team, we animate the corresponding problem.
+
+watch(
+    () => contestStore.recentRuns,
+    (newRuns) => {
+        if (!contestStore.awardMode || newRuns.length === 0) return;
+        const lastRun = newRuns[0];
+
+        if (lastRun.team.id === props.teamStatus.team.id) {
+            // This team just had a run processed. Animate the problem cell.
+            const pid = lastRun.problem.id;
+            triggerAnimation(pid);
+        }
+    },
+    { deep: true }
+);
+
+function triggerAnimation(problemId: number) {
+    animationState.value[problemId] = `animate-${ANIMATION_TYPE}`;
+
+    // Remove class after animation completes to allow re-triggering
+    setTimeout(() => {
+        delete animationState.value[problemId];
+    }, 1000); // Match CSS animation duration
+}
 
 function handleClick() {
     if (contestStore.awardMode && isFinalized.value) {
@@ -261,5 +348,29 @@ function handleClick() {
   50% {
     opacity: 0.7;
   }
+}
+
+/* Flash Animation */
+.animate-flash {
+    animation: flash-animation 0.5s ease-in-out;
+}
+
+@keyframes flash-animation {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.5); filter: brightness(2); z-index: 10; }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* Flip Animation */
+.animate-flip {
+    animation: flip-animation 0.8s ease-in-out;
+    backface-visibility: visible;
+}
+
+@keyframes flip-animation {
+    0% { transform: perspective(400px) rotateY(0); }
+    40% { transform: perspective(400px) rotateY(90deg); }
+    60% { transform: perspective(400px) rotateY(90deg); } /* Hold briefly? */
+    100% { transform: perspective(400px) rotateY(0); }
 }
 </style>
