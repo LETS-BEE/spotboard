@@ -102,59 +102,6 @@ const animationState = ref<{ [problemId: number]: string }>({});
 // Configuration for animation type ('flash' or 'flip')
 const ANIMATION_TYPE = 'flip'; // Can be 'flash' or 'flip'
 
-// Watch for changes in problem status for this team
-watch(
-  () => props.teamStatus.problemStatuses,
-  (newStatuses, oldStatuses) => {
-    if (!contestStore.awardMode) return;
-
-    for (const pidStr in newStatuses) {
-      const pid = parseInt(pidStr);
-      const ps = newStatuses[pid];
-
-      // We need a way to detect if this specific problem just updated.
-      // Since `teamStatus` is mutable and deep watched, `oldStatuses` might be the same object reference.
-      // However, we can track the "last known state" locally if needed.
-      // But `nextAwardStep` updates the run, which updates the team status.
-      // A simpler way: Watch specific properties we care about if possible, or just trigger on deep change.
-
-      // Let's rely on the fact that if we are the "current focused team" in award mode, we want to animate changes.
-      if (contestStore.currentAwardTeamId === props.teamStatus.team.id) {
-          // If this problem status changed recently (we can check run timestamp or just trigger?)
-          // Since we don't have easy "diff" here without deep cloning previous state,
-          // we can check if it matches the "last processed run" if we had access to it.
-
-          // Alternative: Use a specialized watcher or just trigger animation on any change if it's the focused team.
-          // But we want to animate ONLY the problem that changed.
-
-          // Let's assume any change in "isAccepted", "isFailed" or "isPending" warrants an animation check.
-          // Since we can't easily diff deep objects that are mutated in place without a clone,
-          // we will implement a lightweight tracker.
-      }
-    }
-  },
-  { deep: true }
-);
-
-// Better approach: Watch the 'runs' of the problem statuses?
-// Or simply, since we are only animating the *currently focused* team in award mode,
-// we can watch `contestStore.recentRuns`. If the top run belongs to this team, we animate the corresponding problem.
-
-watch(
-    () => contestStore.recentRuns,
-    (newRuns) => {
-        if (!contestStore.awardMode || newRuns.length === 0) return;
-        const lastRun = newRuns[0];
-
-        if (lastRun.team.id === props.teamStatus.team.id) {
-            // This team just had a run processed. Animate the problem cell.
-            const pid = lastRun.problem.id;
-            triggerAnimation(pid);
-        }
-    },
-    { deep: true }
-);
-
 function triggerAnimation(problemId: number) {
     animationState.value[problemId] = `animate-${ANIMATION_TYPE}`;
 
