@@ -42,6 +42,7 @@ export const useContestStore = defineStore('contest', {
 
     // Recent Events
     recentRuns: [] as Run[],
+    lastUpdatedProblem: null as { teamId: number, problemId: number, timestamp: number } | null,
   }),
   getters: {
     isLoaded: (state) => !!state.contest,
@@ -293,6 +294,12 @@ export const useContestStore = defineStore('contest', {
         if (this.recentRuns.length > 50) {
             this.recentRuns.pop();
         }
+
+        this.lastUpdatedProblem = {
+            teamId: run.team.id,
+            problemId: run.problem.id,
+            timestamp: Date.now()
+        };
 
         if (!silent && this.notificationsEnabled && run.isAccepted()) {
             this.showNotification(run);

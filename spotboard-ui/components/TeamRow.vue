@@ -56,8 +56,17 @@ const hasRuns = computed(() => {
 });
 
 const isObfuscated = computed(() => {
-    // Hide teams with no runs only in Award Mode
-    return contestStore.awardMode && !hasRuns.value;
+    // In award mode, obfuscate unless it's the current focused team or already finalized
+    if (!contestStore.awardMode) return false;
+    if (contestStore.currentAwardTeamId === props.teamStatus.team.id) return false;
+    if (isFinalized.value) return false;
+    return true;
+});
+
+watch(() => contestStore.lastUpdatedProblem, (newVal) => {
+    if (newVal && newVal.teamId === props.teamStatus.team.id) {
+        triggerAnimation(newVal.problemId);
+    }
 });
 
 const solvedBalloons = computed(() => {
