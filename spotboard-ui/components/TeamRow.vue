@@ -44,6 +44,8 @@ const props = defineProps<{
   teamStatus: TeamStatus
 }>();
 
+let isAwardAttempt = ref<boolean>(false);
+
 const contestStore = useContestStore();
 
 const isFinalized = computed(() => {
@@ -56,8 +58,21 @@ const hasRuns = computed(() => {
 });
 
 const isObfuscated = computed(() => {
-    // Hide teams with no runs only in Award Mode
-    return contestStore.awardMode && !hasRuns.value;
+    // In award mode, obfuscate unless it's the current focused team or already finalized
+    if (!contestStore.awardMode) return false;
+    if (isAwardAttempt.value) return false;
+    if (contestStore.currentAwardTeamId === props.teamStatus.team.id) {
+      isAwardAttempt.value = true;
+      return false;
+    }
+    if (isFinalized.value) return false;
+    return true;
+});
+
+watch(() => contestStore.lastUpdatedProblem, (newVal) => {
+    if (newVal && newVal.teamId === props.teamStatus.team.id) {
+        triggerAnimation(newVal.problemId);
+    }
 });
 
 const solvedBalloons = computed(() => {
@@ -315,9 +330,9 @@ function handleClick() {
 }
 
 @keyframes flip-animation {
-    0% { transform: perspective(400px) rotateY(0); }
-    40% { transform: perspective(400px) rotateY(90deg); }
-    60% { transform: perspective(400px) rotateY(90deg); } /* Hold briefly? */
-    100% { transform: perspective(400px) rotateY(0); }
+    0% { transform: perspective(400px) rotateX(0); }
+    40% { transform: perspective(400px) rotateX(90deg); }
+    60% { transform: perspective(400px) rotateX(90deg); } /* Hold briefly? */
+    100% { transform: perspective(400px) rotateX(0); }
 }
 </style>
