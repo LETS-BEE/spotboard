@@ -324,9 +324,9 @@ function handleClick() {
 }
 
 @keyframes flip-animation {
-    0% { transform: perspective(400px) rotateY(0); }
-    40% { transform: perspective(400px) rotateY(90deg); }
-    60% { transform: perspective(400px) rotateY(90deg); } /* Hold briefly? */
-    100% { transform: perspective(400px) rotateY(0); }
+    0% { transform: perspective(400px) rotateX(0); }
+    40% { transform: perspective(400px) rotateX(90deg); }
+    60% { transform: perspective(400px) rotateX(90deg); } /* Hold briefly? */
+    100% { transform: perspective(400px) rotateX(0); }
 }
 </style>
