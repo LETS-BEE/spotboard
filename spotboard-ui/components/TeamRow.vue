@@ -44,6 +44,8 @@ const props = defineProps<{
   teamStatus: TeamStatus
 }>();
 
+let isAwardAttempt = ref<boolean>(false);
+
 const contestStore = useContestStore();
 
 const isFinalized = computed(() => {
@@ -58,7 +60,11 @@ const hasRuns = computed(() => {
 const isObfuscated = computed(() => {
     // In award mode, obfuscate unless it's the current focused team or already finalized
     if (!contestStore.awardMode) return false;
-    if (contestStore.currentAwardTeamId === props.teamStatus.team.id) return false;
+    if (isAwardAttempt.value) return false;
+    if (contestStore.currentAwardTeamId === props.teamStatus.team.id) {
+      isAwardAttempt.value = true;
+      return false;
+    }
     if (isFinalized.value) return false;
     return true;
 });
