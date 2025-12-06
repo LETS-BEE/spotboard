@@ -39,6 +39,7 @@ export const useContestStore = defineStore('contest', {
     awardSlideVisible: false,
     awardSlideData: null as any | null,
     finalizedTeams: [] as number[], // IDs of teams that have been "finalized" in award mode
+    pendingRankUpdate: false,
 
     // Recent Events
     recentRuns: [] as Run[],
@@ -322,6 +323,8 @@ export const useContestStore = defineStore('contest', {
         this.awardMode = true;
         this.finalizedTeams = [];
         this.currentAwardTeamId = null;
+        this.contest.beginRunTransaction(); // Pause rank updates
+        this.pendingRankUpdate = false; // 플래그 초기화
         this.stopAutoFeedLoop();
         this.stopEventFeedPolling();
     },
@@ -329,6 +332,8 @@ export const useContestStore = defineStore('contest', {
     exitAwardMode() {
         this.awardMode = false;
         this.awardSlideVisible = false;
+        this.contest.commitRunTransaction();
+        this.pendingRankUpdate = false;
     },
 
     async showAwardSlideForTeam(teamId: number) {
@@ -348,6 +353,13 @@ export const useContestStore = defineStore('contest', {
 
     async nextAwardStep() {
         if (!this.contest || !this.runFeeder) return;
+
+        // 순위 변동이 대기 중이라면, 이번 스텝에서는 순위만 갱신하고 종료
+        if (this.pendingRankUpdate) {
+            this.contest.updateTeamStatusesAndRanks(); // 실제 순위 변경 수행
+            this.pendingRankUpdate = false; // 플래그 초기화
+            return; // 여기서 함수 종료 (다음 팀으로 넘어가지 않음)
+        }
 
         // If award slide is visible, hide it first
         if (this.awardSlideVisible) {
@@ -383,7 +395,12 @@ export const useContestStore = defineStore('contest', {
         if (runToReveal) {
             this.contest.reflectRun(runToReveal);
             this.handleRunProcessed(runToReveal, true);
-            this.contest.updateTeamStatusesAndRanks();
+            // 정답(Accepted)인 경우 즉시 정렬하지 않고 플래그만 설정
+            if (runToReveal.isAccepted()) {
+                this.pendingRankUpdate = true;
+            } else {
+                this.contest.updateTeamStatusesAndRanks();
+            }
         } else {
             this.finalizedTeams.push(this.currentAwardTeamId);
 

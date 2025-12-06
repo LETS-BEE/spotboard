@@ -12,7 +12,11 @@
       </div>
     </div>
     <TransitionGroup name="scoreboard-list" tag="div" class="scoreboard-body">
-      <TeamRow v-for="teamStatus in filteredTeams" :key="teamStatus.team.id" :team-status="teamStatus" />
+      <TeamRow v-for="teamStatus in filteredTeams" 
+      :key="teamStatus.team.id" 
+      :ref="(el) => setTeamRef(el, teamStatus.team.id)"
+      :class="{ 'award-focus': lastUpdatedProblem?.teamId === teamStatus.team.id }"
+      :team-status="teamStatus" />
     </TransitionGroup>
   </div>
 </template>
@@ -22,7 +26,36 @@ import { useContestStore } from '~/stores/contest';
 import { storeToRefs } from 'pinia';
 
 const contestStore = useContestStore();
-const { filteredTeams } = storeToRefs(contestStore);
+const { filteredTeams, lastUpdatedProblem } = storeToRefs(contestStore);
+
+// 모든 TeamRow의 DOM 요소를 저장할 객체
+const teamRowRefs = ref<Record<number, any>>({});
+
+// v-for에서 ref를 동적으로 바인딩하는 함수
+const setTeamRef = (el: any, id: number) => {
+  if (el) {
+    // el.$el은 컴포넌트의 실제 DOM 요소입니다.
+    teamRowRefs.value[id] = el.$el || el; 
+  }
+};
+
+// currentAwardTeamId가 변경될 때마다(다음 팀으로 넘어갈 때마다) 실행
+watch(lastUpdatedProblem, async (newUpdatedProblem) => {
+  if (newUpdatedProblem) {
+    // DOM 업데이트를 기다린 후 실행
+    // await nextTick();
+    setTimeout(() => {
+      const targetElement = teamRowRefs.value[newUpdatedProblem.teamId];
+      
+      if (targetElement) {
+        console.log(`Scrolling to team ${newUpdatedProblem.teamId}`); // 디버깅용 로그
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        console.warn(`Element for team ${newUpdatedProblem.teamId} not found in refs.`);
+      }
+    }, 250); // 약간의 지연 후 실행
+  }
+});
 </script>
 
 <style scoped>
@@ -92,5 +125,23 @@ const { filteredTeams } = storeToRefs(contestStore);
 .scoreboard-list-leave-active {
   position: absolute; /* Ensures smooth removal */
   width: 100%; /* Keep width during exit */
+}
+
+.award-focus {
+  z-index: 10;           /* 다른 팀들보다 위에 뜨도록 */
+  position: relative;
+  transform: scale(1.02); /* 살짝 커지게 */
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.6); /* 금빛 후광 효과 */
+  border: 2px solid #ffd700; /* 금색 테두리 */
+  background-color: #fffbe6; /* 아주 연한 노란 배경 */
+  transition: all 0.3s ease; /* 부드러운 전환 */
+}
+
+/* 다크 모드일 경우 배경색 조정 (필요시) */
+@media (prefers-color-scheme: dark) {
+  .award-focus {
+    background-color: #4a4a00;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+  }
 }
 </style>

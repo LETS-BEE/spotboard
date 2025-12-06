@@ -427,7 +427,9 @@ export class Contest {
   }
 
   getRankedTeamStatusList(): TeamStatus[] {
-    this.updateTeamStatusesAndRanks();
+    if (!this.underRunTransaction) {
+      this.updateTeamStatusesAndRanks();
+    }
     return this.rankedTeamStatuses!;
   }
 

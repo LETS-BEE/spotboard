@@ -117,6 +117,7 @@ function formatTime(minutes: number) {
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .event-card.is-accepted {

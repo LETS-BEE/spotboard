@@ -143,7 +143,6 @@ function handleKeydown(e: KeyboardEvent) {
     position: sticky;
     top: 1rem;
     height: calc(100vh - 150px);
-    overflow: hidden;
 }
 
 @media (max-width: 1200px) {

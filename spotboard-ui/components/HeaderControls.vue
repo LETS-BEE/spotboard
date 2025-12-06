@@ -63,6 +63,42 @@ function updateSearchQuery(event: Event) {
     const target = event.target as HTMLInputElement;
     contestStore.setSearchQuery(target.value);
 }
+
+onMounted(async () => {
+  if (process.client) {
+    window.addEventListener('keydown', handleKeydown);
+  }
+});
+
+onUnmounted(() => {
+    if(process.client) {
+        contestStore.stopEventFeedPolling();
+        window.removeEventListener('keydown', handleKeydown);
+    }
+});
+
+function handleKeydown(e: KeyboardEvent) {
+  // Only handle if not in award mode
+  if (!contestStore.awardMode) {
+    if (e.key === ' ' || e.key === 'Space') {
+      // Spacebar toggles auto feed
+      e.preventDefault();
+      contestStore.toggleAutoFeed();
+    } else if (e.key.toLowerCase() === 'f') {
+      // 'F' feeds one event
+      e.preventDefault();
+      contestStore.feedOne();
+    } else if (e.key.toLowerCase() === 'a') {
+      // 'A' feeds all events
+      e.preventDefault();
+      contestStore.feedAll();
+    } else if (e.key.toLowerCase() === 'n') {
+      // 'N' toggles notifications
+      e.preventDefault();
+      contestStore.toggleNotifications();
+    }
+  }
+}
 </script>
 
 <style scoped>
