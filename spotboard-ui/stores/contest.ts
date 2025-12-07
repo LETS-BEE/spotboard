@@ -88,15 +88,15 @@ export const useContestStore = defineStore('contest', {
       this.error = null;
       const config = useRuntimeConfig();
       const cid = config.public.domjudgeContestId;
-      const api = useDomjudgeApi();
+      const domjudgeApi = useDomjudgeApi();
 
       try {
         console.log("Attempting to load contest data from DOMjudge API...");
         const [contestData, problemsData, teamsData, groupsData] = await Promise.all([
-          api(`/contests/${cid}`),
-          api(`/contests/${cid}/problems`),
-          api(`/contests/${cid}/teams`),
-          api(`/contests/${cid}/groups`),
+          domjudgeApi(`/contests/${cid}`),
+          domjudgeApi(`/contests/${cid}/problems`),
+          domjudgeApi(`/contests/${cid}/teams`),
+          domjudgeApi(`/contests/${cid}/groups`),
         ]);
 
         // Parse freeze time
@@ -126,7 +126,7 @@ export const useContestStore = defineStore('contest', {
         const contest = Contest.createFromJson(contestJson as any);
         this.contest = contest;
 
-        const initialJudgements = await api(`/contests/${cid}/judgements?strict=false`);
+        const initialJudgements = await domjudgeApi(`/contests/${cid}/judgements?strict=false`);
         const initialRuns = adaptInitialJudgements(initialJudgements as any, contest);
 
         this.runFeeder = new RunFeeder(contest, new FIFORunFeedingStrategy());
@@ -428,10 +428,10 @@ export const useContestStore = defineStore('contest', {
 
             const config = useRuntimeConfig();
             const cid = config.public.domjudgeContestId;
-            const api = useDomjudgeApi();
+            const domjudgeApi = useDomjudgeApi();
 
             try {
-                const events = await api(`/contests/${cid}/event-feed?stream=false`);
+                const events = await domjudgeApi(`/contests/${cid}/event-feed?stream=false`);
                 const newRuns = adaptEventFeed(events as any, this.contest);
 
                 if (newRuns.length > 0) {
