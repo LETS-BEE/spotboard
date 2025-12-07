@@ -87,16 +87,16 @@ export const useContestStore = defineStore('contest', {
       this.isLoading = true;
       this.error = null;
       const config = useRuntimeConfig();
-      const baseUrl = config.public.domjudgeApiBaseUrl;
       const cid = config.public.domjudgeContestId;
+      const api = useDomjudgeApi();
 
       try {
         console.log("Attempting to load contest data from DOMjudge API...");
         const [contestData, problemsData, teamsData, groupsData] = await Promise.all([
-          $fetch(`${baseUrl}/contests/${cid}`),
-          $fetch(`${baseUrl}/contests/${cid}/problems`),
-          $fetch(`${baseUrl}/contests/${cid}/teams`),
-          $fetch(`${baseUrl}/contests/${cid}/groups`),
+          api(`/contests/${cid}`),
+          api(`/contests/${cid}/problems`),
+          api(`/contests/${cid}/teams`),
+          api(`/contests/${cid}/groups`),
         ]);
 
         // Parse freeze time
@@ -126,7 +126,7 @@ export const useContestStore = defineStore('contest', {
         const contest = Contest.createFromJson(contestJson as any);
         this.contest = contest;
 
-        const initialJudgements = await $fetch(`${baseUrl}/contests/${cid}/judgements?strict=false`);
+        const initialJudgements = await api(`/contests/${cid}/judgements?strict=false`);
         const initialRuns = adaptInitialJudgements(initialJudgements as any, contest);
 
         this.runFeeder = new RunFeeder(contest, new FIFORunFeedingStrategy());
@@ -427,13 +427,11 @@ export const useContestStore = defineStore('contest', {
             if (!this.contest) return;
 
             const config = useRuntimeConfig();
-            const baseUrl = config.public.domjudgeApiBaseUrl;
-            if (!baseUrl) return;
-
             const cid = config.public.domjudgeContestId;
+            const api = useDomjudgeApi();
 
             try {
-                const events = await $fetch(`${baseUrl}/contests/${cid}/event-feed?stream=false`);
+                const events = await api(`/contests/${cid}/event-feed?stream=false`);
                 const newRuns = adaptEventFeed(events as any, this.contest);
 
                 if (newRuns.length > 0) {

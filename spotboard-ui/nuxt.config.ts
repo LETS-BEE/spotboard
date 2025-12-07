@@ -20,6 +20,8 @@ export default defineNuxtConfig({
     public: {
       domjudgeApiBaseUrl: process.env.NUXT_PUBLIC_DOMJUDGE_API_BASE_URL || 'https://domjudge.iti.kit.edu/main/api/v4',
       domjudgeContestId: process.env.NUXT_PUBLIC_DOMJUDGE_CONTEST_ID || 'nwerc2019', // Default to a demo contest
+      domjudgeUsername: process.env.NUXT_PUBLIC_DOMJUDGE_USERNAME || '',
+      domjudgePassword: process.env.NUXT_PUBLIC_DOMJUDGE_PASSWORD || '',
     }
   }
 })
