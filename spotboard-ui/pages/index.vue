@@ -50,19 +50,25 @@ onMounted(async () => {
     }
 
     // Handle URL parameters for Fast Forward
-    // Example: ?run_id=123 or ?time=60
+    // Example: ?r=123 or ?t=60
     if (contestStore.isLoaded) {
-      const runId = route.query.run_id ? parseInt(route.query.run_id as string, 10) : undefined;
-      const time = route.query.time ? parseInt(route.query.time as string, 10) : undefined;
+      const runId = route.query.r ? parseInt(route.query.r as string, 10) : undefined;
+      const time = route.query.t ? parseInt(route.query.t as string, 10) : undefined;
+      const awardMode = route.query.award? route.query.award === '1' || route.query.award === 'true' : false;
 
       if (runId !== undefined || time !== undefined) {
-          contestStore.fastForward({ runId, time });
+        contestStore.fastForward({ runId, time });
       } else {
-          // Default behavior: Feed everything up to freeze time (if configured)
-          contestStore.feedInitial();
+        // Default behavior: Feed everything up to freeze time (if configured)
+        contestStore.feedInitial();
       }
 
       contestStore.startEventFeedPolling();
+
+      if (awardMode) {
+        // Start Award Mode if specified in URL
+        contestStore.startAwardMode();
+      }
     }
 
     // Keyboard Event Listener for Award Mode
@@ -71,40 +77,33 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-    if(process.client) {
-        contestStore.stopEventFeedPolling();
-        window.removeEventListener('keydown', handleKeydown);
-    }
+  if(process.client) {
+    contestStore.stopEventFeedPolling();
+    window.removeEventListener('keydown', handleKeydown);
+  }
 });
 
 function handleKeydown(e: KeyboardEvent) {
-    // Only handle if in award mode
-    if (!contestStore.awardMode) {
-        // Optional: Shortcut to start Award Mode? e.g. Ctrl+Alt+A
-        if (e.ctrlKey && e.altKey && e.code === 'KeyA') {
-            if (confirm("Start Award Mode?")) {
-                contestStore.startAwardMode();
-            }
-        }
-        return;
-    }
+  // Only handle if in award mode
+  if (contestStore.awardMode) {
 
     if (e.code === 'Space' || e.code === 'ArrowRight' || e.code === 'Enter') {
-        e.preventDefault();
-        // If award slide is visible, do not proceed to next step
-        if (!contestStore.awardSlideVisible) {
-            contestStore.nextAwardStep();
-        }
+      e.preventDefault();
+      // If award slide is visible, do not proceed to next step
+      if (!contestStore.awardSlideVisible) {
+        contestStore.nextAwardStep();
+      }
     } else if (e.code === 'Escape') {
-        if (contestStore.awardSlideVisible) {
-            contestStore.awardSlideVisible = false;
-        } else {
-            // Optional: Exit award mode?
-            if (confirm("Exit Award Mode?")) {
-                contestStore.exitAwardMode();
-            }
+      if (contestStore.awardSlideVisible) {
+        contestStore.awardSlideVisible = false;
+      } else {
+        // Optional: Exit award mode?
+        if (confirm("Exit Award Mode?")) {
+          contestStore.exitAwardMode();
         }
+      }
     }
+  }
 }
 </script>
 

@@ -26,7 +26,7 @@ import { useContestStore } from '~/stores/contest';
 import { storeToRefs } from 'pinia';
 
 const contestStore = useContestStore();
-const { filteredTeams, lastUpdatedProblem } = storeToRefs(contestStore);
+const { filteredTeams, lastUpdatedProblem, currentAwardTeamId } = storeToRefs(contestStore);
 
 // 모든 TeamRow의 DOM 요소를 저장할 객체
 const teamRowRefs = ref<Record<number, any>>({});
@@ -39,11 +39,11 @@ const setTeamRef = (el: any, id: number) => {
   }
 };
 
-// currentAwardTeamId가 변경될 때마다(다음 팀으로 넘어갈 때마다) 실행
+// lastUpdatedProblem의 teamId가 변경될 때마다(다음 팀으로 넘어갈 때마다) 실행
 watch(lastUpdatedProblem, async (newUpdatedProblem) => {
   if (newUpdatedProblem) {
+
     // DOM 업데이트를 기다린 후 실행
-    // await nextTick();
     setTimeout(() => {
       const targetElement = teamRowRefs.value[newUpdatedProblem.teamId];
       
@@ -54,6 +54,23 @@ watch(lastUpdatedProblem, async (newUpdatedProblem) => {
         console.warn(`Element for team ${newUpdatedProblem.teamId} not found in refs.`);
       }
     }, 250); // 약간의 지연 후 실행
+  }
+});
+
+// currentAwardTeamId가 변경될 때마다(다음 팀으로 넘어갈 때마다) 실행
+watch(currentAwardTeamId, async (newAwardTeamId) => {
+  if (newAwardTeamId) {
+    // DOM 업데이트를 기다린 후 실행
+    await nextTick();
+    
+    const targetElement = teamRowRefs.value[newAwardTeamId];
+      
+    if (targetElement) {
+      console.log(`Scrolling to team ${newAwardTeamId}`); // 디버깅용 로그
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      console.warn(`Element for team ${newAwardTeamId} not found in refs.`);
+    }
   }
 });
 </script>

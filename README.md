@@ -1,6 +1,7 @@
 # Spotboard
 
-Spotboard는 ACM-ICPC 스타일의 프로그래밍 대회를 위한 스코어보드 시스템입니다. 이 프로젝트는 최신 웹 기술인 Nuxt 4와 Vue 3를 사용하여 구현되었습니다.
+> Spotboard는 ACM-ICPC 스타일의 프로그래밍 대회를 위한 스코어보드 시스템입니다.  
+> 이 프로젝트는 최신 웹 기술인 Nuxt 4와 Vue 3를 사용하여 구현되었습니다.
 
 ## 기술 스택
 - **프레임워크:** Nuxt 4, Vue 3
@@ -34,3 +35,14 @@ Spotboard는 ACM-ICPC 스타일의 프로그래밍 대회를 위한 스코어보
 - 검색 기능
 
 자세한 내용은 `spotboard-ui/README.md`를 참고하세요.
+
+
+## 이미지 비교
+
+### Spotboard(original)
+![spotboard](./img/spotboard.png)
+![spotboard-award](./img/spotboard-award.png)
+
+### Sptboard(vue3)
+![spotboard-ui](./img/sfpc-spotboard.png)
+![spotboard-ui-award](./img/sfpc-spotboard-award.png)
